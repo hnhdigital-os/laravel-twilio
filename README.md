@@ -41,6 +41,16 @@ Enable the facade by editing config/app.php:
     ];
 ```
 
+## Configuration
+
+Set the following in your environment by editing .env:
+
+```
+TWILIO_ACCOUNT_SID=""
+TWILIO_AUTH_TOKEN=""
+TWILIO_NUMBER=""
+```
+
 ## Contributing
 
 Please see [CONTRIBUTING](https://github.com/bluora/laravel-twilio/blob/master/CONTRIBUTING.md) for details.
