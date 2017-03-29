@@ -10,6 +10,7 @@ class Sms
 {
     /**
      * Twilio client.
+     *
      * @var Twilio\Rest\Client
      */
     private $client;
@@ -29,10 +30,10 @@ class Sms
     /**
      * Send an SMS.
      *
-     * @param  string       $to_number
-     * @param  string       $body
-     * @param  bool|string  $from 
-     * 
+     * @param string      $to_number
+     * @param string      $body
+     * @param bool|string $from
+     *
      * @return bool
      *
      * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
@@ -48,16 +49,16 @@ class Sms
                 $to_number,
                 [
                     'body' => $body,
-                    'from' => $from_number
+                    'from' => $from_number,
                 ]
             );
-            Log::info('Message sent to ' . $to_number);
+            Log::info('Message sent to '.$to_number);
 
             return true;
         } catch (TwilioException $e) {
             Log::error(
-                'Could not send SMS notification.' .
-                ' Twilio replied with: ' . $e
+                'Could not send SMS notification.'.
+                ' Twilio replied with: '.$e
             );
         }
 
