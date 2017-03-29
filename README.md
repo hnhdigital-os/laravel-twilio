@@ -36,7 +36,7 @@ Enable the facade by editing config/app.php:
 ```php
     'aliases' => [
         ...
-        'Git' => Bluora\LaravelTwilio\Facade::class,
+        'Sms' => Bluora\LaravelTwilio\SmsFacade::class,
         ...
     ];
 ```
