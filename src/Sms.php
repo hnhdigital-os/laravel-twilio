@@ -16,6 +16,13 @@ class Sms
     private $client;
 
     /**
+     * Last message.
+     *
+     * @var Twilio\Rest\Api\V2010\Account\MessageInstance
+     */
+    private $message;
+
+    /**
      * Create client.
      *
      * @return void
@@ -25,6 +32,22 @@ class Sms
         if (is_null($this->client)) {
             $this->client = new Client(env('TWILIO_ACCOUNT_SID'), env('TWILIO_AUTH_TOKEN'));
         }
+    }
+
+    /**
+     * Prepare number for sending.
+     *
+     * @return string
+     */
+    private function prepareNumber($number)
+    {
+        $number = preg_replace('/[^0-9+]*/', '', $number);
+
+        if (substr($number, 0, 1) !== '+') {
+            $number = '+'.$number;
+        }
+
+        return $number;
     }
 
     /**
@@ -41,11 +64,13 @@ class Sms
     public function send($to_number, $body, $from_number = false)
     {
         $this->client();
+        $this->message = null;
 
-        $from_number = $from_number === false ? env('TWILIO_NUMBER') : $from_number;
+        $to_number = $this->prepareNumber($to_number);
+        $from_number = $this->prepareNumber($from_number === false ? env('TWILIO_NUMBER') : $from_number);
 
         try {
-            $this->client->messages->create(
+            $this->message = $this->client->messages->create(
                 $to_number,
                 [
                     'body' => $body,
@@ -55,13 +80,32 @@ class Sms
             Log::info('Message sent to '.$to_number);
 
             return true;
-        } catch (TwilioException $e) {
+        } catch (\Exception $e) {
             Log::error(
-                'Could not send SMS notification.'.
-                ' Twilio replied with: '.$e
+                'Could not send SMS. '.$e->getMessage()
             );
         }
 
         return false;
+    }
+
+    /**
+     * Get the value from the sent messages for the given key.
+     *
+     * @param  string $key
+     *
+     * @return mixed
+     */
+    public function get($key)
+    {
+        if (!is_null($this->message)) {
+            try {
+                return $this->message->$key;
+            } catch (\Exception $e) {
+
+            }
+        }
+
+        return null;
     }
 }
