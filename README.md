@@ -49,6 +49,7 @@ Set the following in your environment by editing .env:
 TWILIO_ACCOUNT_SID=""
 TWILIO_AUTH_TOKEN=""
 TWILIO_NUMBER=""
+TWILIO_MESSAGE_STATUS_CALLBACK=""
 ```
 
 ## Contributing
