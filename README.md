@@ -19,7 +19,7 @@ This package has been developed by H&H|Digital, an Australian botique developer.
 
 Via composer:
 
-`$ composer require-dev bluora/laravel-twilio ~1.0`
+`$ composer require bluora/laravel-twilio ~1.0`
 
 Enable the service provider by editing config/app.php:
 
