@@ -29,27 +29,29 @@ class Sms
     /**
      * Send an SMS.
      *
-     * @param  string       $to
+     * @param  string       $to_number
      * @param  string       $body
      * @param  bool|string  $from 
      * 
      * @return bool
+     *
+     * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
      */
-    public function send($to, $body, $from = false)
+    public function send($to_number, $body, $from_number = false)
     {
         $this->client();
 
-        $from = $from === false ? env('TWILIO_NUMBER') : $from;
+        $from_number = $from_number === false ? env('TWILIO_NUMBER') : $from_number;
 
         try {
             $this->client->messages->create(
-                $to,
+                $to_number,
                 [
                     'body' => $body,
-                    'from' => $from
+                    'from' => $from_number
                 ]
             );
-            Log::info('Message sent to ' . $to);
+            Log::info('Message sent to ' . $to_number);
 
             return true;
         } catch (TwilioException $e) {
