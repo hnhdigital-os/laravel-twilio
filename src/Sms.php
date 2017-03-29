@@ -4,7 +4,6 @@ namespace Bluora\LaravelTwilio;
 
 use Log;
 use Twilio\Rest\Client;
-use TwilioException;
 
 class Sms
 {
@@ -92,7 +91,7 @@ class Sms
     /**
      * Get the value from the sent messages for the given key.
      *
-     * @param  string $key
+     * @param string $key
      *
      * @return mixed
      */
@@ -102,10 +101,7 @@ class Sms
             try {
                 return $this->message->$key;
             } catch (\Exception $e) {
-
             }
         }
-
-        return null;
     }
 }
