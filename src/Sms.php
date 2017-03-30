@@ -40,6 +40,13 @@ class Sms
     private $message;
 
     /**
+     * Error message.
+     *
+     * @var string
+     */
+    private $error_message;
+
+    /**
      * Messaging service.
      *
      * @var string
@@ -129,20 +136,13 @@ class Sms
     }
 
     /**
-     * Get the value from the sent messages for the given key.
+     * Get the error message.
      *
-     * @param string $key
-     *
-     * @return mixed
+     * @return string
      */
-    public function get($key)
+    public function getError()
     {
-        if (!is_null($this->message)) {
-            try {
-                return $this->message->$key;
-            } catch (\Exception $e) {
-            }
-        }
+        return $this->error_message;
     }
 
     /**
@@ -180,6 +180,7 @@ class Sms
     {
         $this->client();
         $this->message = null;
+        $this->error_message = null;
 
         $to_number = $this->prepareNumber($to_number);
 
@@ -203,9 +204,10 @@ class Sms
             $this->message = $this->client->messages->create($to_number, $data);
             Log::info('Message sent to '.$to_number);
 
-            return true;
+            return $this->message;
         } catch (\Exception $e) {
             Log::error('Could not send SMS. '.$e->getMessage());
+            $this->error_message = $e->getMessage();
         }
 
         return false;
