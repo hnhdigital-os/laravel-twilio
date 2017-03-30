@@ -7,19 +7,9 @@ use Twilio\Rest\Client;
 
 class Sms
 {
-    /**
-     * Twilio client.
-     *
-     * @var Twilio\Rest\Client
-     */
-    private $client;
 
-    /**
-     * Last message.
-     *
-     * @var Twilio\Rest\Api\V2010\Account\MessageInstance
-     */
-    private $message;
+    const MODE_NUMBER = 0;
+    const MODE_MSG_SERVICE = 1;
 
     /**
      * Callback url.
@@ -29,6 +19,41 @@ class Sms
     private $callback;
 
     /**
+     * Twilio client.
+     *
+     * @var Twilio\Rest\Client
+     */
+    private $client;
+
+    /**
+     * From number.
+     *
+     * @var string
+     */
+    private $from_number;
+
+    /**
+     * Last message.
+     *
+     * @var Twilio\Rest\Api\V2010\Account\MessageInstance
+     */
+    private $message;
+
+    /**
+     * Messaging service.
+     *
+     * @var string
+     */
+    private $messaging_service_sid;
+
+    /**
+     * Sending mode.
+     *
+     * @var boolean
+     */
+    private $mode;
+
+    /**
      * Set the callback.
      *
      * @return void
@@ -36,6 +61,46 @@ class Sms
     public function callback($url)
     {
         $this->callback = $url;
+
+        return $this;
+    }
+
+    /**
+     * Set the from number.
+     *
+     * @param  boolean|string $from_number
+     *
+     * @return void
+     */
+    public function fromNumber($from_number = false)
+    {
+        $this->mode = self::MODE_NUMBER;
+        if ($number !== false) {
+            $this->from_number = $from_number;
+
+            return;
+        }
+
+        $this->from_number = env('TWILIO_NUMBER');
+    }
+
+    /**
+     * Set the messaging service sid.
+     *
+     * @param  boolean|string $messaging_service_sid
+     *
+     * @return void
+     */
+    public function fromMessagingService($messaging_service_sid = false)
+    {
+        $this->mode = self::MODE_MSG_SERVICE;
+        if ($messaging_service_sid !== false) {
+            $this->messaging_service_sid = $messaging_service_sid;
+
+            return;
+        }
+
+        $this->messaging_service_sid = env('TWILIO_MESSAGING_SERVICE');
     }
 
     /**
@@ -50,6 +115,17 @@ class Sms
         }
 
         $this->callback = env('TWILIO_MESSAGE_STATUS_CALLBACK', null);
+
+        if (is_null($this->mode)) {
+            if (env('TWILLO_MESSAGE_MODE', self::MODE_NUMBER) == self::MODE_NUMBER
+                && env('TWILIO_NUMBER', false)) {
+                $this->fromNumber();
+            } elseif (env('TWILIO_MESSAGING_SERVICE', false)) {
+                $this->fromMessagingService();
+            } else {
+                throw new TwilioException('Missing default number or messaging service sid');
+            }
+        }
     }
 
     /**
@@ -97,24 +173,27 @@ class Sms
      *
      * @param string      $to_number
      * @param string      $body
-     * @param bool|string $from
      *
      * @return bool
-     *
-     * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
      */
-    public function send($to_number, $body, $from_number = false)
+    public function send($to_number, $body)
     {
         $this->client();
         $this->message = null;
 
         $to_number = $this->prepareNumber($to_number);
-        $from_number = $this->prepareNumber($from_number === false ? env('TWILIO_NUMBER') : $from_number);
 
-        $data = [
-            'body' => $body,
-            'from' => $from_number,
-        ];
+        $data = ['body' => $body];
+
+        if ($this->mode === self::MODE_NUMBER) {
+            $data['from'] = $this->prepareNumber($this->from_number);
+        } elseif ($this->mode === self::MODE_MSG_SERVICE) {
+            $data['messagingServiceSid'] = $this->messaging_service_sid;
+        }
+
+        if (!isset($data['from']) && !isset($data['messagingServiceSid'])) {
+            return false;
+        }
 
         if (!empty($this->callback)) {
             $data['statusCallback'] = $this->callback;
