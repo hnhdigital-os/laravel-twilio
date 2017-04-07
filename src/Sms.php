@@ -7,7 +7,6 @@ use Twilio\Rest\Client;
 
 class Sms
 {
-
     const MODE_NUMBER = 0;
     const MODE_MSG_SERVICE = 1;
 
@@ -56,7 +55,7 @@ class Sms
     /**
      * Sending mode.
      *
-     * @var boolean
+     * @var bool
      */
     private $mode;
 
@@ -75,7 +74,7 @@ class Sms
     /**
      * Set the from number.
      *
-     * @param  boolean|string $from_number
+     * @param bool|string $from_number
      *
      * @return void
      */
@@ -94,7 +93,7 @@ class Sms
     /**
      * Set the messaging service sid.
      *
-     * @param  boolean|string $messaging_service_sid
+     * @param bool|string $messaging_service_sid
      *
      * @return void
      */
@@ -171,8 +170,8 @@ class Sms
     /**
      * Send an SMS.
      *
-     * @param string      $to_number
-     * @param string      $body
+     * @param string $to_number
+     * @param string $body
      *
      * @return bool
      */
