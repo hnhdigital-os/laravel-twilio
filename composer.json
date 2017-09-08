@@ -1,5 +1,5 @@
 {
-  "name": "bluora/laravel-twilio",
+  "name": "hnhdigital-os/laravel-twilio",
   "description": "Provides Twilio services in Laravel.",
   "keywords": ["laravel","twilio"],
   "license": "MIT",
