@@ -35,7 +35,7 @@ Enable the facade by editing `config/app.php`:
 
 ## Configuration
 
-Config is published to 'config/hnhdigital/twilio.php' and the following environment variables can be provided for each service:
+Config is published to `config/hnhdigital/twilio.php` and the following environment variables can be provided for each service:
 
 ### Messaging
 
