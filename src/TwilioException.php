@@ -1,6 +1,6 @@
 <?php
 
-namespace Bluora\LaravelTwilio;
+namespace HnhDigital\LaravelTwilio;
 
 class TwilioException extends \Exception
 {

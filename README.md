@@ -15,23 +15,15 @@ Provides the Twilio services to Laravel.
 
 This package has been developed by H&H|Digital, an Australian botique developer. Visit us at [hnh.digital](http://hnh.digital).
 
+![#f03c15](https://placehold.it/15/f03c15/000000?text=+) Currently only implements messaging.
+
 ## Install
 
 Via composer:
 
-`$ composer require hnhdigital-os/laravel-twilio dev-master`
+`$ composer require hnhdigital-os/laravel-twilio`
 
-Enable the service provider by editing config/app.php:
-
-```php
-    'providers' => [
-        ...
-        Bluora\LaravelTwilio\ServiceProvider::class,
-        ...
-    ];
-```
-
-Enable the facade by editing config/app.php:
+Enable the facade by editing `config/app.php`:
 
 ```php
     'aliases' => [
@@ -43,13 +35,18 @@ Enable the facade by editing config/app.php:
 
 ## Configuration
 
-Set the following in your environment by editing .env:
+Config is published to 'config/hnhdigital/twilio.php' and the following environment variables can be provided for each service:
+
+### Messaging
+
+Set `TWILIO_MESSAGING_SID` or `TWILIO_MESSAGING_DEFAULT_NUMBER` but not both.
 
 ```
-TWILIO_ACCOUNT_SID=""
-TWILIO_AUTH_TOKEN=""
-TWILIO_NUMBER=""
-TWILIO_MESSAGE_STATUS_CALLBACK=""
+TWILIO_ACCOUNT_SID=
+TWILIO_ACCOUNT_TOKEN=
+TWILIO_MESSAGING_SID=
+TWILIO_MESSAGING_DEFAULT_NUMBER=
+TWILIO_MESSAGING_STATUS_CALLBACK=
 ```
 
 ## Contributing

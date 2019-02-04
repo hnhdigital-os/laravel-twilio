@@ -1,6 +1,8 @@
 <?php
 
-namespace Bluora\LaravelTwilio;
+declare(strict_types=1);
+
+namespace HnhDigital\LaravelTwilio;
 
 use Log;
 use Twilio\Rest\Client;
@@ -50,7 +52,7 @@ class Sms
      *
      * @var string
      */
-    private $messaging_service_sid;
+    private $messaging_sid;
 
     /**
      * Sending mode.
@@ -60,11 +62,24 @@ class Sms
     private $mode;
 
     /**
-     * Set the callback.
-     *
-     * @return void
+     * Set defaults.
      */
-    public function callback($url)
+    public function __construct() : void
+    {
+        $this->client = new Client(
+            config('hnhdigital.messages.account_sid'),
+            config('hnhdigital.messages.account_token')
+        );
+
+        $this->callback(config('hnhdigital.messages.callback', ''));
+        $this->fromNumber(config('hnhdigital.messages.default_number', ''));
+        $this->fromMessagingService(config('hnhdigital.messages.messaging_sid', ''));
+    }
+
+    /**
+     * Set the callback.
+     */
+    public function callback(string $url) : Sms
     {
         $this->callback = $url;
 
@@ -73,111 +88,41 @@ class Sms
 
     /**
      * Set the from number.
-     *
-     * @param bool|string $from_number
-     *
-     * @return void
      */
-    public function fromNumber($from_number = false)
+    public function fromNumber(string $from_number = '') : Sms
     {
-        $this->mode = self::MODE_NUMBER;
-        if ($number !== false) {
+        if (!empty($from_number)) {
             $this->from_number = $from_number;
-
-            return;
+            $this->mode = self::MODE_NUMBER;
+        } elseif (!empty(config('hnhdigital.messages.default_number', ''))) {
+            $this->from_number = config('hnhdigital.messages.default_number', '');
+            $this->mode = self::MODE_NUMBER;
         }
 
-        $this->from_number = env('TWILIO_NUMBER');
+        return $this;
     }
 
     /**
      * Set the messaging service sid.
-     *
-     * @param bool|string $messaging_service_sid
-     *
-     * @return void
      */
-    public function fromMessagingService($messaging_service_sid = false)
+    public function fromMessagingService(string $messaging_sid = '') : Sms
     {
-        $this->mode = self::MODE_MSG_SERVICE;
-        if ($messaging_service_sid !== false) {
-            $this->messaging_service_sid = $messaging_service_sid;
-
-            return;
+        if (!empty($messaging_sid)) {
+            $this->messaging_sid = $messaging_sid;
+            $this->mode = self::MODE_MSG_SERVICE;
+        } elseif (!empty(config('hnhdigital.messages.messaging_sid', ''))) {
+            $this->messaging_sid = config('hnhdigital.messages.messaging_sid', '');
+            $this->mode = self::MODE_MSG_SERVICE;
         }
 
-        $this->messaging_service_sid = env('TWILIO_MESSAGING_SERVICE');
-    }
-
-    /**
-     * Create client.
-     *
-     * @return void
-     */
-    private function client()
-    {
-        if (is_null($this->client)) {
-            $this->client = new Client(env('TWILIO_ACCOUNT_SID'), env('TWILIO_AUTH_TOKEN'));
-        }
-
-        $this->callback = env('TWILIO_MESSAGE_STATUS_CALLBACK', null);
-
-        if (is_null($this->mode)) {
-            if (env('TWILLO_MESSAGE_MODE', self::MODE_NUMBER) == self::MODE_NUMBER
-                && env('TWILIO_NUMBER', false)) {
-                $this->fromNumber();
-            } elseif (env('TWILIO_MESSAGING_SERVICE', false)) {
-                $this->fromMessagingService();
-            } else {
-                throw new TwilioException('Missing default number or messaging service sid');
-            }
-        }
-    }
-
-    /**
-     * Get the error message.
-     *
-     * @return string
-     */
-    public function getError()
-    {
-        return $this->error_message;
-    }
-
-    /**
-     * Prepare number for sending.
-     *
-     * @return string
-     */
-    private function prepareNumber($number)
-    {
-        // Remove non-numbers
-        $number = preg_replace('/[^0-9+]*/', '', $number);
-
-        // Remove 0 from start of number
-        if (substr($number, 0, 1) === '0') {
-            $number = substr($number, 1);
-        }
-
-        // Add missing + from number
-        if (substr($number, 0, 1) !== '+') {
-            $number = '+'.$number;
-        }
-
-        return $number;
+        return $this;
     }
 
     /**
      * Send an SMS.
-     *
-     * @param string $to_number
-     * @param string $body
-     *
-     * @return bool
      */
-    public function send($to_number, $body)
+    public function send(string $to_number, string $body) : bool
     {
-        $this->client();
         $this->message = null;
         $this->error_message = null;
 
@@ -188,7 +133,7 @@ class Sms
         if ($this->mode === self::MODE_NUMBER) {
             $data['from'] = $this->prepareNumber($this->from_number);
         } elseif ($this->mode === self::MODE_MSG_SERVICE) {
-            $data['messagingServiceSid'] = $this->messaging_service_sid;
+            $data['messagingServiceSid'] = $this->messaging_sid;
         }
 
         if (!isset($data['from']) && !isset($data['messagingServiceSid'])) {
@@ -210,5 +155,34 @@ class Sms
         }
 
         return false;
+    }
+
+    /**
+     * Prepare number for sending.
+     */
+    private function prepareNumber(string $number) : string
+    {
+        // Remove non-numbers
+        $number = preg_replace('/[^0-9+]*/', '', $number);
+
+        // Remove 0 from start of number
+        if (substr($number, 0, 1) === '0') {
+            $number = substr($number, 1);
+        }
+
+        // Add missing + from number
+        if (substr($number, 0, 1) !== '+') {
+            $number = '+'.$number;
+        }
+
+        return $number;
+    }
+
+    /**
+     * Get the error message.
+     */
+    public function getError() : string
+    {
+        return $this->error_message;
     }
 }

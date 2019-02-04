@@ -1,6 +1,6 @@
 <?php
 
-namespace Bluora\LaravelTwilio;
+namespace HnhDigital\LaravelTwilio;
 
 use Illuminate\Support\Facades\Facade as BaseFacade;
 

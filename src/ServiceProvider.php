@@ -1,6 +1,6 @@
 <?php
 
-namespace Bluora\LaravelTwilio;
+namespace HnhDigital\LaravelTwilio;
 
 use Illuminate\Support\ServiceProvider as BaseServiceProvider;
 
@@ -23,6 +23,8 @@ class ServiceProvider extends BaseServiceProvider
         $this->app->singleton('Sms', function () {
             return new Sms();
         });
+
+        $this->mergeConfigFrom(__DIR__.'/../config/twilio.php', 'hnhdigital.twilio');
     }
 
     /**
@@ -33,5 +35,17 @@ class ServiceProvider extends BaseServiceProvider
     public function provides()
     {
         return ['Sms'];
+    }
+
+    /**
+     * Bootstrap any application services.
+     *
+     * @return void
+     */
+    public function boot()
+    {
+        $this->publishes([
+            __DIR__ . '/../config/twilio.php' => config_path('hnhdigital/twilio.php')
+        ], 'twilio-config');
     }
 }
